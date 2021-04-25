@@ -47,19 +47,25 @@ def StablitiyCheck(n1, n2, n3):
     elif n1+n2-n3 >2: 
         SystemIndeterminacy = n1+n2-n3-2
 
-StabilityCheck (NumberOfMomentSupports, NumberOfVerticalSupports, NumberOfInternalRelease)
+StabilityCheck(NumberOfMomentSupports, NumberOfVerticalSupports, NumberOfInternalRelease)
 
-# Input Coordinates of Support
-SupportPositionInput = input(
-    "Enter the coordinates of the support positions(Single Spacing between the inputs) : "
-)
+#The support S matrix
+SupportMatrix = []
 
-# Converting String of Coordinates into List
-SupportPositionCoordinates = SupportPositionInput.split(" ")
+for i in range(NumberOfSupports):
+    SupportPositionInput = input(
+        "Enter the value of support type and the coordinate at which the support is acting on the bar respectively (with a space in between each values)( 1- moment, 2- Force, 3- Internal Release : "
+    )
+    # converting the string of input into list with 2 items - type & coordinate of support 
+    SupportPositionInputList = SupportPositionInput.split(" ")
+    # Updating the list SupportMatrix with recent input
+    SupportMatrix.append(
+        (float(SupportPositionInputList[0]), float(SupportPositionInputList[1]))
+    )
 
-# Converting data type from string to float in List
-for i in range(0, len(SupportPositionCoordinates)):
-    SupportPositionCoordinates[i] = float(SupportPositionCoordinates[i])
+#Converting to Numpy Array
+SupportMatrix = np.array(SupportMatrix)    
+
 ##################################-Force-Input-###################################
 # No. of Forces Acting
 NumberOfForces = int(
@@ -246,7 +252,9 @@ else:
     
     -If n2 = 0 -> say unstable
     -If n1+n2-n3 <2 -> say unstable
-        (check for local indeterminacy in next part)
+    
+    (check for local indeterminacy in next part)
+ 
     -If n1+n2-n3 =2 -> solution case determinate
     -If n1+n2-n3 >2 -> solution case indeterminate
      -   indeterminacy = IN = n1+n2-n3-2
@@ -260,3 +268,5 @@ else:
     
             (segment for internal release in next part)
 
+note -  
+support input is taken directly and not sorted. Sorting needs to be done according to the future needs.
