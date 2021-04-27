@@ -1,0 +1,53 @@
+Revision #1/3
+                    Ask for number of moment supports (n1)
+                    Ask for number of vertical supports (n2)
+                    Ask for internal release (n3)
+                    
+                    If n2 = 0 -> say unstable
+                    If n1+n2-n3 <2 -> say unstable
+                        (check for local indeterminacy in next part)
+                    If n1+n2-n3 =2 -> solution case determinate
+                    If n1+n2-n3 >2 -> solution case indeterminate
+                        indeterminacy = IN = n1+n2-n3-2
+                    
+                    Create matrix, S = [3,(n1+n2)]
+                    For i=1:n1, input location of moment support
+                            S(i)=(1,input,0)
+                    For i=n1:(n1+n2), input location of vertical support
+                            S(i)=(2,input,0)
+                            Note: sort by input to sort supports by distance
+                    
+                            (segment for internal release in next part)
+
+
+Revision #2/3
+                                                        (for determinate)
+                If n3 = 0,
+                         Read S matrix as S11, S12, S13, S21, S22 and S23
+                         and, F = sum of forces, M = sum of moments
+                Now,
+                    (S11-1)*S13+(S21-1)*S23 = -1*F
+                    S13*S12^(S11-1)+S23*S22^(S21-1) = -1*M
+                    Or
+                    S13 = (-F*S22^(S21-1)+M*(S21-1)) / ((S11-1)*S22^(S21-1)-(S21-1)*S12^(S11-1))
+                    S23 = (-F*S12^(S11-1)+M*(S11-1)) / ((S21-1)*S12^(S11-1)-(S11-1)*S22^(S21-1))
+               
+               If n3>0
+               (case for internal release in next update)
+               
+               
+                                                        (for indeterminate)
+               Remove IN rows from S matrix and solve for determinate structure
+               Store data for IN matrix as
+                     U(3,IN) with value of third column as 1
+
+
+Revision #3/3
+                Deflection function (input all FBD forces in a matrix, location, type of deflection) = value of deflection
+                For indeterminate case calculate,
+                        Deflection of determinate solution at location from second row in U matrix (D)
+                Second, solve the beam again with unit load at location from second row in U matrix and no external load
+                        calculate deflection at location from second row in U matrix for given unit load (K)
+                Third,
+                        Calculate R = -D*K-1
+                Merge R with external load and solve for FBD
