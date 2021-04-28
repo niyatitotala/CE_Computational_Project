@@ -74,12 +74,70 @@ SupportMatrix = np.array(SupportMatrix)
 
 ##################################-Force-Input-###################################
 # No. of Forces Acting
-NumberOfLoads = int(
-    input("Enter the number of loads acting on the beam : "))
+NumberOfForces = int(input("Enter the number of forces acting on the beam : "))
 
-# List Containing The type, coordinate and magnitude of acting Loads respectively (2-D)
-LoadsActing = []
+ForcesActing = []
+for i in range(NumberOfForces):
+    # input of coordinate and magnitude of force acting
+    ForcesActingInput = input(
+        "Enter the value of coordinate and magnitude acting on the bar respectively (with a space in between each values) : ")
+    # converting the string of input into list with 2 items - coordinate & magnitude of force
+    ForcesActingInputList = ForcesActingInput.split(" ")
+    # Updating the list ForcesActing with recent input
+    ForcesActing.append(
+        (float(ForcesActingInputList[0]), float(ForcesActingInputList[1])))
 
+NumberOfMoments = int(
+    input("Enter the number of Moments acting on the beam : "))
+
+# List Containing The coordinate and magnitude of acting moments respectively (2-D)
+MomentsActing = []
+
+for i in range(NumberOfMoments):
+    # input of coordinate and magnitude of force acting
+    MomentsActingInput = input(
+        "Enter the value of coordinate and moment acting on the bar respectively (with a space in between each values) : "
+    )
+    # converting the string of input into list with 2 items - coordinate & magnitude of force
+    MomentsActingInputList = MomentsActingInput.split(" ")
+    # Updating the list Moments Acting with recent input
+    MomentsActing.append(
+        (float(MomentsActingInputList[0]), float(MomentsActingInputList[1]))
+    )
+###############################################################################
+# Initializing variable SumOfForces and calculating it
+SumOfForces = 0.0
+for i in range(0, len(ForcesActing)):
+    SumOfForces = SumOfForces + ForcesActing[i][1]
+
+# Initializing and calculating moment of forces from the origin
+MomentOfForces = 0.0
+for i in range(0, len(ForcesActing)):
+    MomentOfForces = MomentOfForces + \
+        ForcesActing[i][0] * ForcesActing[i][1]
+
+# Initializing variable SumOfMoments and calculating it
+SumOfMoments = 0.0
+for i in range(0, len(ForcesActing)):
+    SumOfMoments = SumOfMoments + MomentssActing[i][1]
+
+SumOfMoments = MomentOfForces + SumOfMoments
+
+z = np.zeros((NumberOfSupports, 1), int)
+SupportMatrix = np.append(SupportMatrix, z, axis=1)
+
+# S13 = (-F*S22^(S21-1)+M*(S21-1)) / ((S11-1)*S22^(S21-1)-(S21-1)*S12^(S11-1))
+SupportMatrix[0][2] = (-SumOfForces*SupportMatrix[1][1]**(SupportMatrix[1][0]-1) + SumOfMoments*(
+    SupportMatrix[1][0]-1)) / ((SupportMatrix[0][0]-1)*SupportMatrix[1][1]**(SupportMatrix[0][0]-1) - (SupportMatrix[1][0]-1)*SupportMatrix[0][1]**(SupportMatrix[0][0]-1))
+
+# S23 = (-F*S12^(S11-1)+M*(S11-1)) / ((S21-1)*S12^(S11-1)-(S11-1)*S22^(S21-1))
+SupportMatrix[1][2] = (-SumOfForces*SupportMatrix[0][1]**(SupportMatrix[0][0]-1) + SumOfMoments*(
+    SupportMatrix[0][0]-1)) / ((SupportMatrix[1][0]-1)*SupportMatrix[0][1]**(SupportMatrix[0][0]-1) - (SupportMatrix[0][0]-1)*SupportMatrix[1][1]**(SupportMatrix[1][0]-1))
+
+for i in range(SystemIndeterminacy):
+
+
+'''
 for i in range(NumberOfLoads):
     # input of coordinate and magnitude of force acting
     LoadsActingInput = input(
@@ -106,153 +164,4 @@ for i in range(0, len(LoadsActing)):
     SumOfMoments = SumOfMoments + \
         ((LoadsActing[i][2])*((LoadsActing[i][1])**(LoadsActing[i][0]-1)))
 SumOfMoments = SumOfMoments*(-1)
-
-print(SumOfForces)
-print(SumOfMoments)
-'''
-############################################################################
-# [Coeff]
-
-
-#    c1 = 0.0
-#    c2 = 0.0
-#    d1 = 0.0
-#    d2 = 0.0
-
-# If the unknowns are forces :
-c1 = 1
-#   c2 = 1
-
-d1 = SupportPositionCoordinates[0]
-#   d2 = SupportPositionCoordinates[1]
-
-# ColumnToBeAdded = []
-
-# Step 1
-Coeff = np.array([[c1], [d1]])
-
-# Step 2
-for i in range(0, NumberOfSupports):
-    NewCoefficient = SupportPositionCoordinates[i]**3
-    Coeff = np.append(Coeff, [[NewCoefficient]], axis=0)
-    i = i+1
-
-# Step 3
-for j in range(1, NumberOfSupports):
-    ColumnToBeAdded = np.array([[c1], [SupportPositionCoordinates[j]]])
-    for i in range(0, NumberOfSupports):
-        if j < i:
-            NewCoefficient = (
-                SupportPositionCoordinates[i]-SupportPositionCoordinates[j])**3
-            ColumnToBeAdded = np.append(
-                ColumnToBeAdded, [[NewCoefficient]], axis=0)
-
-        elif j >= i:
-            NewCoefficient = 0
-            ColumnToBeAdded = np.append(
-                ColumnToBeAdded, [[NewCoefficient]], axis=0)
-
-    i = i+1
-    Coeff = np.append(Coeff, ColumnToBeAdded, axis=1)
-
-# Step 4
-ColumnToBeAdded = np.array([[0], [0]])
-for i in range(0, NumberOfSupports):
-    NewCoefficient = SupportPositionCoordinates[i]
-    ColumnToBeAdded = np.append(
-        ColumnToBeAdded, [[NewCoefficient]], axis=0)
-    i = i + 1
-Coeff = np.append(Coeff, ColumnToBeAdded, axis=1)
-
-# Step 5
-ColumnToBeAdded = np.array([[0], [0]])
-for i in range(0, NumberOfSupports):
-    NewCoefficient = 1
-    ColumnToBeAdded = np.append(
-        ColumnToBeAdded, [[NewCoefficient]], axis=0)
-    i = i + 1
-Coeff = np.append(Coeff, ColumnToBeAdded, axis=1)
-
-print(Coeff)
-
-###############################################################################
-# [EqConstant]
-EqConstant = np.array([[SumOfForces], [MomentOfForces]])
-
-# NewCoefficient = 0.0
-# print(EqConstant)
-# print(ForcesActing[0][0])
-# print(ForcesActing[1][0])
-# print(ForcesActing[2][0])
-# print(ForcesActing[3][0])
-for i in range(0, NumberOfSupports):
-    NewCoefficient = 0
-    var2 = 0
-    if SupportPositionCoordinates[i] > ForcesActing[var2][0]:
-        while SupportPositionCoordinates[i] > ForcesActing[var2][0]:
-            InstantaneousForceSum = ForcesActing[var2][1]*(
-                (SupportPositionCoordinates[i] - ForcesActing[var2][0])**3)
-            NewCoefficient = NewCoefficient + InstantaneousForceSum
-            var2 = var2 + 1
-            if (var2 >= len(ForcesActing)):
-                break
-
-    else:
-        NewCoefficient = 0
-
-    EqConstant = np.append(EqConstant, [[NewCoefficient]],  axis=0)
-
-print(EqConstant)
-
-    ##########################################################################################
-
-    # Initializing list of the Reaction Forces
-    # ReactionForces = []
-    CoeffInverse = np.linalg.inv(Coeff)
-    # print(CoeffInverse)
-    Resultant = np.dot(CoeffInverse, EqConstant)
-
-    print("resultant array", str(Resultant))
-
-
-    # Calculating Reaction Force for support 1
-    ReactionForce1 = (MomentOfForces - SupportPositionCoordinates[1] * SumOfForces) / (
-        SupportPositionCoordinates[0] - SupportPositionCoordinates[1]
-    )
-    # Initializing list of the Reaction Forces
-    ReactionForces = []
-    # Updating the Reaction Forces list with both the reaction forces
-    ReactionForces.append(ReactionForce1)
-    ReactionForces.append((SumOfForces - ReactionForce1))
-    # Test Run
-    
-else:
-    print("Error")
-    
-    
-    *********************************************
-    -Ask for number of moment supports (n1)
-    -Ask for number of vertical supports (n2)
-    -Ask for internal release (n3)
-    
-    -If n2 = 0 -> say unstable
-    -If n1+n2-n3 <2 -> say unstable
-    
-    (check for local indeterminacy in next part)
- 
-    -If n1+n2-n3 =2 -> solution case determinate
-    -If n1+n2-n3 >2 -> solution case indeterminate
-     -   indeterminacy = IN = n1+n2-n3-2
-    
-    Create matrix, S = [3,(n1+n2)]
-    For i=1:n1, input location of moment support
-            S(i)=(1,input,0)
-    For i=n1:(n1+n2), input location of vertical support
-            S(i)=(2,input,0)
-            Note: sort by input to sort supports by distance
-    
-            (segment for internal release in next part)
-
-note -  
-support input is taken directly and not sorted. Sorting needs to be done according to the future needs.
 '''
